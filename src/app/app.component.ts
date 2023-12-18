@@ -1,7 +1,7 @@
-import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { BehaviorSubject, Observable, ReplaySubject, generate } from 'rxjs';
+import { BehaviorSubject, concatMap, delay, of } from 'rxjs';
 
 type SortItem = {
   value: number;
@@ -14,41 +14,43 @@ type SortItem = {
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
   imports: [CommonModule, RouterOutlet],
+  // changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppComponent {
-  sortItems = generateRandomArray();
+  animationItems$ = new BehaviorSubject<SortItem[]>(generateRandomArray());
 
-  bubbleSort() {
-    const arr = this.sortItems;
-    const n = arr.length;
-
-    for (let i = 0; i < n; i++) {
-      arr[i].color = 'red';
-      for (let j = 0; j < n - i - 1; j++) {
-        setTimeout(() => {
-          if (arr[j].value > arr[j + 1].value) {
-            const temp = arr[j];
-            arr[j] = arr[j + 1];
-            arr[j + 1] = temp;
-          }
-        }, 100);
-      }
-      arr[i].color = 'white';
-    }
-
-    this.sortItems = arr;
-  }
+  animation$ = this.animationItems$.pipe(
+    concatMap((item) => of(item).pipe(delay(1)))
+  );
 
   randomize() {
-    this.sortItems = generateRandomArray();
+    this.animationItems$.next(generateRandomArray());
+  }
+
+  bubbleSort() {
+    let arr = generateRandomArray();
+    const n = arr.length;
+    this.animationItems$.next(arr);
+    for (let i = 0; i < n; i++) {
+      for (let j = 0; j < n - i - 1; j++) {
+        this.animationItems$.next([...arr]); // Create a new array to trigger change detection
+        if (arr[j].value < arr[j + 1].value) {
+          const temp = arr[j];
+          arr[j] = arr[j + 1];
+          arr[j + 1] = temp;
+          this.animationItems$.next([...arr]); // Create a new array to trigger change detection
+        }
+        this.animationItems$.next([...arr]); // Create a new array to trigger change detection
+      }
+    }
   }
 }
 
 function generateRandomArray(): SortItem[] {
   const arr = [];
-  for (let i = 0; i < 300; i++) {
+  for (let i = 0; i < 50; i++) {
     arr.push({
-      value: Math.floor(Math.random() * 1000),
+      value: Math.floor(Math.random() * 500),
       color: 'white',
     });
   }

@@ -1,21 +1,23 @@
-
-<div class="h-screen w-screen bg-gray-800 ">
-    <div class="h-24 bg-gray-900">
-        <div class="flex justify-center p-4 items-center">
-            <button class="bg-gray-300 p-4 rounded-lg" (click)="bubbleSort()">bubble sort</button>
-            <button class="bg-gray-300 p-4 rounded-lg" (click)="randomize()">Randomize</button>
-        </div>
+<div class="h-screen w-screen bg-gray-800">
+  <div class="h-24 bg-gray-900 flex gap-4">
+    <div class="flex justify-center p-4 items-center">
+      <button class="bg-gray-300 p-4 rounded-lg" (click)="bubbleSort()">
+        bubble sort
+      </button>
+      <button class="bg-gray-300 p-4 rounded-lg" (click)="randomize()">
+        randomize
+      </button>
     </div>
-    <div class="flex pr-16 pl-16 ">
-        @for (item of sortItems; track item) {
-            
-            <div
-            class="flex w-4 bg-white"
-            [ngStyle]="{
-                backgroundColor: item.color,
+  </div>
+  <div class="flex gap-2 pr-16 pl-16">
+    @for (item of animation$ | async; track item) {
+    <div
+      class="flex w-8 mx-2"
+      [ngStyle]="{
+                backgroundColor: item.color ==='red' ?'red' : 'white',
                 height: item.value + 'px', 
-            }"></div>
+            }"
+    ></div>
     }
-    </div>
+  </div>
 </div>
-
